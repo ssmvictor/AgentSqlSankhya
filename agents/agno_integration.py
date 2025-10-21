@@ -126,23 +126,34 @@ def sql_validator(sql: str) -> Dict[str, Any]:
             validacao['tabelas_encontradas'].append(nome_tabela)
     
     # Verificar campos mencionados
-    campos_no_sql = re.findall(r'\b([A-Z_]+)\b', sql_upper)
-    tabelas_encontradas_set = set(validacao['tabelas_encontradas'])
+    # Captura identificadores incluindo números e nomes entre aspas/brackets
+    pattern = r'"([^"]+)"|\[([^\]]+)\]|`([^`]+)`|([A-Z_][A-Z0-9_]*)'
+    raw_tokens = re.findall(pattern, sql, flags=re.IGNORECASE)
+    campos_no_sql = []
+    for groups in raw_tokens:
+        token = next((g for g in groups if g), None)
+        if token:
+            campos_no_sql.append(token)
+
+    # Conjunto de tabelas encontrado (case-insensitive)
+    tabelas_encontradas_set = {t.upper() for t in validacao['tabelas_encontradas']}
     campos_vistos = set()
-    
+
     for campo_possivel in campos_no_sql:
-        if campo_possivel in campos_vistos:
+        campo_key = campo_possivel.lower()
+        if campo_key in campos_vistos:
             continue
-        if campo_possivel in INDEXER.indice_campos:
+        if campo_key in INDEXER.indice_campos:
             if (
                 not tabelas_encontradas_set
                 or any(
-                    tabela in tabelas_encontradas_set
-                    for tabela, _ in INDEXER.indice_campos[campo_possivel]
+                    tabela.upper() in tabelas_encontradas_set
+                    for tabela, _ in INDEXER.indice_campos[campo_key]
                 )
             ):
-                validacao['campos_encontrados'].append(campo_possivel)
-            campos_vistos.add(campo_possivel)
+                # Exibir em maiúsculas por consistência com o SQL analisado
+                validacao['campos_encontrados'].append(campo_possivel.upper())
+            campos_vistos.add(campo_key)
     
     # Avisos básicos
     if 'SELECT *' in sql_upper:
