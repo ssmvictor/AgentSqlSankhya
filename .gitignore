@@ -1,4 +1,4 @@
-#segunraça
+#segurança
 .env
 
 # Cache e arquivos temporários Python
@@ -38,5 +38,3 @@ dist/
 # Arquivos de log e dados temporários
 *.log
 schema_stats.json
-.env
-.env
