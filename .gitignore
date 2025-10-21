@@ -1,0 +1,37 @@
+# Cache e arquivos temporários Python
+.cache/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Ambientes virtuais
+venv/
+env/
+ENV/
+.venv/
+
+# IDEs e editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Arquivos de teste e cobertura
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+
+# Arquivos de build e distribuição
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Arquivos de log e dados temporários
+*.log
+schema_stats.json
