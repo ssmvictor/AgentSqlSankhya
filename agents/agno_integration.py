@@ -8,6 +8,10 @@ nova estrutura de pacotes (src/, config/).
 import os
 from typing import Dict, Optional, Any, List
 from dotenv import load_dotenv
+
+# Carregar variaveis de ambiente o mais cedo possivel
+load_dotenv()
+
 from agno.agent import Agent
 from agno.team.team import Team
 from agno.tools import tool
@@ -297,12 +301,12 @@ class SankhyaSQLAssistant:
         """
         # Verificar cache
         if query in self.cache:
-            print("📌 Resposta do cache")
+            print("[CACHE] Resposta do cache")
             return self.cache[query]
         
         try:
             # Executar agente ou time
-            print(f"🤖 Processando: {query}")
+            print(f"[AGENTE] Processando: {query}")
             
             # Usar run() ao invés de kickoff() que não existe
             response = self.executor.run(query)
@@ -338,7 +342,7 @@ class SankhyaSQLAssistant:
         Processa query com resposta interativa (streaming).
         """
         try:
-            print(f"🤖 Processando: {query}")
+            print(f"[AGENTE] Processando: {query}")
             print("-" * 50)
             
             if isinstance(self.executor, Team):
@@ -361,7 +365,7 @@ class SankhyaSQLAssistant:
             })
             
         except Exception as e:
-            print(f"❌ Erro: {e}")
+            print(f"[ERRO] Erro: {e}")
     
     def _extrair_sql(self, response: Any) -> Optional[str]:
         """Extrai SQL da resposta"""
@@ -389,14 +393,14 @@ class SankhyaSQLAssistant:
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(historico_completo, f, indent=2, ensure_ascii=False)
         
-        print(f"✓ Histórico salvo: {filepath}")
+        print(f"[INFO] Histórico salvo: {filepath}")
 
 # ============= EXEMPLO DE USO =============
 
 def exemplo_uso():
     """Demonstra o uso correto do assistente Sankhya com Agno"""
     
-    print("🤖 Assistente Sankhya SQL com Agno (VERSÃO CORRIGIDA)")
+    print("Agente Assistente Sankhya SQL com Agno (VERSÃO CORRIGIDA)")
     print("=" * 50)
     
     # Testar com agente único
@@ -410,7 +414,7 @@ def exemplo_uso():
     ]
     
     for query in queries:
-        print(f"\n📝 Query: {query}")
+        print(f"\n[QUERY] Query: {query}")
         print("-" * 40)
         assistant_single.processar_interativo(query, stream=True)
         print("\n")

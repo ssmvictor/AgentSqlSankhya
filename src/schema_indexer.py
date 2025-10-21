@@ -98,7 +98,7 @@ class SchemaIndexer:
                             self.tabelas = cache_data['tabelas']
                             self.indice_campos = cache_data['indice_campos']
                             self.indice_descricoes = cache_data['indice_descricoes']
-                            print("✓ Cache carregado com sucesso!")
+                            print("OK - Cache carregado com sucesso!")
                             return True
                         except (pickle.UnpicklingError, AttributeError, KeyError, EOFError, ModuleNotFoundError) as e:
                             print(f"⚠️ Cache incompatível ou corrompido: {type(e).__name__}")
@@ -140,7 +140,7 @@ class SchemaIndexer:
         with open(hash_file, 'w') as f:
             f.write(self._get_cache_hash())
         
-        print("✓ Cache salvo com sucesso!")
+        print("OK - Cache salvo com sucesso!")
     
     def parse_schema(self):
         """Parse do arquivo markdown para estruturas indexadas"""
@@ -158,8 +158,8 @@ class SchemaIndexer:
         # Criar índices
         self._criar_indices()
         
-        print(f"✓ {len(self.tabelas)} tabelas indexadas")
-        print(f"✓ {len(self.indice_campos)} campos únicos encontrados")
+        print(f"OK - {len(self.tabelas)} tabelas indexadas")
+        print(f"OK - {len(self.indice_campos)} campos únicos encontrados")
     
     def _parse_tabela(self, tabela_raw: str):
         """Parse de uma tabela individual"""

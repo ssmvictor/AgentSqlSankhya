@@ -49,5 +49,6 @@ MAX_CAMPOS_POR_TABELA = 15
 MAX_OPCOES_EXIBIDAS = 5
 
 # Configuracoes de API (para uso futuro)
-GROK_MODEL = os.getenv("GROK_MODEL", "grok-beta")
+GROK_MODEL = os.getenv("GROK_MODEL", "grok-4-fast-reasoning")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4")
+XAI_API_KEY = os.getenv("XAI_API_KEY")
