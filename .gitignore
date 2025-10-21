@@ -38,3 +38,4 @@ dist/
 # Arquivos de log e dados temporários
 *.log
 schema_stats.json
+.env
