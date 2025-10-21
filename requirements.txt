@@ -1,48 +1,31 @@
-# requirements.txt
-# Dependências do projeto IA_Agno com indexação do Schema Sankhya
+# ==================================================
+# Dependências Principais
+# ==================================================
+# Dependências essenciais para o funcionamento do projeto.
 
-# Este repositório segue a estrutura:
-# src/          - Código-fonte principal (schema_indexer, schema_optimizer, constantes)
-# config/       - Configurações, prompts e schema Sankhya
-# agents/       - Integrações com agentes (Agno, etc.)
-# scripts/      - Scripts utilitários (manage_cache)
-# tests/        - Testes automatizados
-# docs/         - Documentação detalhada e histórico
+# Framework de agentes de IA para a integração principal
+agno
 
-# Para executar módulos diretamente:
-# python -m src.schema_indexer
-# python -m src.schema_optimizer
-# python -m tests.test_indexer
-# python -m scripts.manage_cache <comando>
+# Carregamento de variáveis de ambiente a partir de arquivos .env
+python-dotenv
 
-# Framework de agentes (instalar separadamente quando disponível)
-# agno
+# Usado pelo otimizador para contar tokens e garantir que o contexto
+# enviado aos LLMs não exceda os limites de tamanho.
+tiktoken
 
-# Variáveis de ambiente e configurações
-python-dotenv  # Carrega .env e facilita parâmetros customizados
+# ==================================================
+# Dependências Opcionais
+# ==================================================
+# Instale estas dependências conforme necessário para funcionalidades extras.
 
-# Contador de tokens para LLMs (opcional mas recomendado)
-tiktoken  # Mede tokens durante otimizações de contexto
+# Para criar uma interface web de demonstração
+# streamlit
 
-# Dependências opcionais
-# streamlit  # Interface web (opcional)
-# openai  # Cliente para APIs OpenAI
-# anthropic  # Integração com Claude
-# requests  # Chamadas HTTP genéricas
+# Para usar a API da OpenAI
+# openai
 
-# COMANDOS ÚTEIS:
-# Instalar dependências: pip install -r requirements.txt
-# Executar indexador: python -m src.schema_indexer
-# Executar otimizador: python -m src.schema_optimizer
-# Executar agente (requer agno): python -m agents.agno_integration
-# Executar testes: python -m tests.test_indexer
-# Limpar cache: python -m scripts.manage_cache clear
-# Ver info do cache: python -m scripts.manage_cache info
+# Para usar a API da Anthropic (Claude)
+# anthropic
 
-# ESTRUTURA DO PROJETO:
-# src/          - Código-fonte principal
-# config/       - Configurações, prompts e schema Sankhya
-# agents/       - Agentes de IA e integrações
-# tests/        - Testes automatizados
-# scripts/      - Scripts utilitários
-# docs/         - Documentação e históricos
+# Para fazer chamadas HTTP genéricas
+# requests
