@@ -4,7 +4,7 @@ Otimizador de contexto para reduzir tokens na API
 Trabalha em conjunto com o SchemaIndexer
 """
 
-from typing import Dict, List
+from typing import Any, Dict, List, Optional
 import json
 from src.schema_indexer import SchemaIndexer, Tabela
 from src.constants import CAMPOS_CHAVE, TIPOS_DADOS
@@ -15,7 +15,7 @@ class SchemaOptimizer:
     Otimiza o contexto do schema para uso eficiente com APIs de LLM
     """
     
-    def __init__(self, indexer: SchemaIndexer, max_tokens: int = None):
+    def __init__(self, indexer: SchemaIndexer, max_tokens: Optional[int] = None):
         self.indexer = indexer
         self.max_tokens = max_tokens if max_tokens is not None else MAX_TOKENS_DEFAULT
         
@@ -40,7 +40,7 @@ class SchemaOptimizer:
             # Fallback: estimativa simples (1 token ≈ 4 caracteres)
             return len(texto) // 4
     
-    def otimizar_para_query(self, query: str, estrategia: str = 'smart') -> Dict[str, any]:
+    def otimizar_para_query(self, query: str, estrategia: str = 'smart') -> Dict[str, Any]:
         """
         Otimiza o contexto do schema baseado na query do usuário
         

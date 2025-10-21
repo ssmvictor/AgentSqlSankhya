@@ -7,7 +7,7 @@ Otimizado para reduzir tokens e melhorar performance
 import re
 import json
 import pickle
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 from dataclasses import dataclass, asdict
 from pathlib import Path
 import hashlib
@@ -28,7 +28,7 @@ class Campo:
     descricao: str
     tipo: str
     observacoes: str = ""
-    opcoes: List[Dict[str, str]] = None
+    opcoes: Optional[List[Dict[str, str]]] = None
     
     def __post_init__(self):
         if self.opcoes is None:
@@ -60,7 +60,7 @@ class Tabela:
 class SchemaIndexer:
     """Indexador e buscador do schema Sankhya"""
     
-    def __init__(self, schema_path: str = None, cache_dir: str = None):
+    def __init__(self, schema_path: Optional[Union[str, Path]] = None, cache_dir: Optional[Union[str, Path]] = None):
         self.schema_path = Path(schema_path) if schema_path else get_schema_path()
         self.cache_dir = Path(cache_dir) if cache_dir else get_cache_dir()
         self.cache_dir.mkdir(parents=True, exist_ok=True)
@@ -93,12 +93,23 @@ class SchemaIndexer:
                 
                 if current_hash == cached_hash:
                     with open(cache_file, 'rb') as f:
-                        cache_data = pickle.load(f)
-                        self.tabelas = cache_data['tabelas']
-                        self.indice_campos = cache_data['indice_campos']
-                        self.indice_descricoes = cache_data['indice_descricoes']
-                        print("✓ Cache carregado com sucesso!")
-                        return True
+                        try:
+                            cache_data = pickle.load(f)
+                            self.tabelas = cache_data['tabelas']
+                            self.indice_campos = cache_data['indice_campos']
+                            self.indice_descricoes = cache_data['indice_descricoes']
+                            print("✓ Cache carregado com sucesso!")
+                            return True
+                        except (pickle.UnpicklingError, AttributeError, KeyError, EOFError, ModuleNotFoundError) as e:
+                            print(f"⚠️ Cache incompatível ou corrompido: {type(e).__name__}")
+                            print("🔄 Recriando índices...")
+                            # Limpar cache corrompido
+                            try:
+                                cache_file.unlink()
+                                hash_file.unlink()
+                            except:
+                                pass
+                            return False
             except (pickle.UnpicklingError, AttributeError, KeyError, EOFError) as e:
                 print(f"⚠️ Cache incompatível ou corrompido: {type(e).__name__}")
                 print("🔄 Recriando índices...")
@@ -280,7 +291,7 @@ class SchemaIndexer:
         
         return sorted(list(tabelas_encontradas))
     
-    def buscar_campo(self, nome_campo: str) -> List[Dict[str, any]]:
+    def buscar_campo(self, nome_campo: str) -> List[Dict[str, Any]]:
         """Busca campo em todas as tabelas"""
         nome_campo_lower = nome_campo.lower()
         resultados = []
@@ -316,7 +327,7 @@ class SchemaIndexer:
         
         return resultados
     
-    def get_contexto_minimo(self, tabelas: List[str], campos_especificos: List[str] = None) -> str:
+    def get_contexto_minimo(self, tabelas: List[str], campos_especificos: Optional[List[str]] = None) -> str:
         """
         Retorna contexto mínimo para enviar à API
         Otimizado para usar menos tokens
@@ -387,7 +398,7 @@ class SchemaIndexer:
         tabelas_ordenadas = sorted(tabelas_score.items(), key=lambda x: x[1], reverse=True)
         return [t[0] for t in tabelas_ordenadas[:5]]
     
-    def get_estatisticas(self) -> Dict[str, any]:
+    def get_estatisticas(self) -> Dict[str, Any]:
         """Retorna estatísticas do schema"""
         total_campos = sum(len(t.campos) for t in self.tabelas.values())
         campos_com_opcoes = sum(

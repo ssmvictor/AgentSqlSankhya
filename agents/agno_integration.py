@@ -5,7 +5,8 @@ Versão corrigida conforme a documentação oficial do Agno e alinhada com a
 nova estrutura de pacotes (src/, config/).
 """
 
-from typing import Dict, Optional, Any
+import os
+from typing import Dict, Optional, Any, List
 from dotenv import load_dotenv
 from agno.agent import Agent
 from agno.team.team import Team
@@ -30,6 +31,36 @@ load_dotenv()
 # Inicializar componentes globais
 INDEXER = SchemaIndexer(get_schema_path())
 OPTIMIZER = SchemaOptimizer(INDEXER, max_tokens=1500)
+
+# ---------- Utilidades de credenciais ----------
+
+def _validar_credenciais_modelo(required_vars: Optional[List[str]] = None) -> None:
+    """
+    Garante que as variáveis de ambiente necessárias para os modelos estejam definidas.
+
+    Args:
+        required_vars: Lista explícita de variáveis a validar. Se None, usa padrão do xAI.
+
+    Raises:
+        RuntimeError: Se uma ou mais variáveis obrigatórias estiverem ausentes.
+    """
+    variaveis = required_vars or ["XAI_API_KEY"]
+    ausentes = [var for var in variaveis if not os.getenv(var)]
+
+    if ausentes:
+        lista = ", ".join(ausentes)
+        raise RuntimeError(
+            "Credenciais do modelo ausentes. Defina as variáveis de ambiente "
+            f"{lista} no sistema ou arquivo .env antes de usar o assistente."
+        )
+
+
+def _criar_modelo_xai(**kwargs) -> xAI:
+    """
+    Helper para instanciar o modelo xAI garantindo credenciais.
+    """
+    _validar_credenciais_modelo(["XAI_API_KEY"])
+    return xAI(**kwargs)
 
 # ============= FERRAMENTAS (TOOLS) =============
 
@@ -80,25 +111,34 @@ def sql_validator(sql: str) -> Dict[str, Any]:
         'campos_encontrados': []
     }
     
+    import re
+
     sql_upper = sql.upper()
     
-    # Verificar tabelas mencionadas
+    # Verificar tabelas mencionadas com correspondência exata por limites de palavra
     for nome_tabela in INDEXER.tabelas.keys():
-        if nome_tabela in sql_upper:
+        padrao_tabela = r'\b{}\b'.format(re.escape(nome_tabela))
+        if re.search(padrao_tabela, sql, flags=re.IGNORECASE):
             validacao['tabelas_encontradas'].append(nome_tabela)
-            
-            # Verificar se a tabela existe
-            if nome_tabela not in INDEXER.tabelas:
-                validacao['erros'].append(f"Tabela {nome_tabela} não encontrada no schema")
-                validacao['valido'] = False
     
     # Verificar campos mencionados
-    import re
     campos_no_sql = re.findall(r'\b([A-Z_]+)\b', sql_upper)
+    tabelas_encontradas_set = set(validacao['tabelas_encontradas'])
+    campos_vistos = set()
     
     for campo_possivel in campos_no_sql:
+        if campo_possivel in campos_vistos:
+            continue
         if campo_possivel in INDEXER.indice_campos:
-            validacao['campos_encontrados'].append(campo_possivel)
+            if (
+                not tabelas_encontradas_set
+                or any(
+                    tabela in tabelas_encontradas_set
+                    for tabela, _ in INDEXER.indice_campos[campo_possivel]
+                )
+            ):
+                validacao['campos_encontrados'].append(campo_possivel)
+            campos_vistos.add(campo_possivel)
     
     # Avisos básicos
     if 'SELECT *' in sql_upper:
@@ -175,7 +215,7 @@ def criar_agente_sql() -> Agent:
     return Agent(
         name="Assistente SQL Sankhya",
         instructions=instrucoes,
-        model=xAI(id=GROK_MODEL, temperature=0.3, max_tokens=2000),
+        model=_criar_modelo_xai(id=GROK_MODEL, temperature=0.3, max_tokens=2000),
         tools=[schema_lookup, sql_validator],
         markdown=True,
     )
@@ -192,7 +232,7 @@ def criar_agente_analista() -> Agent:
             "Identifique potenciais problemas de performance",
             "Valide a lógica de negócio"
         ],
-        model=xAI(id=GROK_MODEL),
+        model=_criar_modelo_xai(id=GROK_MODEL),
         tools=[sql_validator],
         markdown=True
     )
@@ -208,7 +248,7 @@ def criar_time_sankhya() -> Team:
     
     return Team(
         name="Time SQL Sankhya",
-        model=xAI(id=GROK_MODEL),
+        model=_criar_modelo_xai(id=GROK_MODEL),
         members=[agente_sql, agente_analista],
         instructions=[
             "Colabore para gerar SQL otimizado e validado",
