@@ -4,16 +4,16 @@
   "historico": [
     {
       "query": "Liste todos os pedidos de venda em aberto",
-      "timestamp": "2025-10-21 11:54:36.972106"
+      "timestamp": "2025-10-21 12:09:20.108207"
     },
     {
       "query": "Qual a descrição da tabela TGFCAB?",
-      "timestamp": "2025-10-21 11:54:42.987987"
+      "timestamp": "2025-10-21 12:09:24.371607"
     },
     {
       "query": "Monte um relatório de vendas com rentabilidade por produto",
-      "timestamp": "2025-10-21 11:55:11.845170"
+      "timestamp": "2025-10-21 12:09:46.930009"
     }
   ],
-  "timestamp_export": "2025-10-21 11:55:52.982172"
+  "timestamp_export": "2025-10-21 12:10:36.952658"
 }
